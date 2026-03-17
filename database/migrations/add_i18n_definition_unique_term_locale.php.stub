@@ -11,7 +11,6 @@ class AddI18nDefinitionUniqueTermLocale extends Migration
         $prefix = config('translatable-revisions.i18n_table_prefix_name');
 
         Schema::table($prefix.'i18n_definitions', function (Blueprint $table) {
-            $table->dropIndex(['term_id', 'locale']);
             $table->unique(['term_id', 'locale']);
         });
     }

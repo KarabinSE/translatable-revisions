@@ -30,13 +30,10 @@ class CreateI18nTables extends Migration
             $table->bigIncrements('id');
             $table->string('key')->unique();
             $table->nullableMorphs('model', 'term_model');
-            $table->integer('model_version')->nullable();
-            $table->string('field_key')->nullable();
             $table->string('description');
             $table->string('group')->default('ungrouped');
             $table->timestamps();
             $table->index('key');
-            $table->index(['model_type', 'model_id', 'model_version', 'field_key'], 'i18n_terms_lookup_idx');
         });
 
         Schema::create($prefix . 'i18n_definitions', function (Blueprint $table) use ($prefix) {
@@ -47,8 +44,6 @@ class CreateI18nTables extends Migration
             $table->json('content')->nullable();
             $table->boolean('approved')->default(0);
             $table->timestamps();
-
-            $table->unique(['term_id', 'locale']);
         });
 
         DB::table($prefix . 'i18n_locales')->insert([

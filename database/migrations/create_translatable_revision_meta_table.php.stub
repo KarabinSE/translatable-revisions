@@ -19,9 +19,6 @@ class CreateTranslatableRevisionMetaTable extends Migration
             $table->string('meta_key');
             $table->text('meta_value');
             $table->nullableTimestamps();
-
-            $table->index(['model_type', 'model_id', 'model_version'], 'revision_meta_lookup_idx');
-            $table->unique(['model_type', 'model_id', 'model_version', 'meta_key'], 'revision_meta_unique_key');
         });
     }
 }

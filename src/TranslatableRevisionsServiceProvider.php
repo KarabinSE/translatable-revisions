@@ -2,6 +2,7 @@
 
 namespace Infab\TranslatableRevisions;
 
+use Carbon\Carbon;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
@@ -9,6 +10,7 @@ use Infab\TranslatableRevisions\Console\Commands\BackfillRevisionSnapshots;
 
 class TranslatableRevisionsServiceProvider extends ServiceProvider
 {
+    protected $sequence = 0;
     /**
      * Boot the service provider.
      *
@@ -23,41 +25,14 @@ class TranslatableRevisionsServiceProvider extends ServiceProvider
         // Migrations
         $this->publishes([
             __DIR__.'/../database/migrations/create_translatable_revisions_table.php.stub' => $this->getMigrationFileName('create_translatable_revisions_table.php'),
-        ], 'migrations');
-
-        $this->publishes([
             __DIR__.'/../database/migrations/create_translatable_revision_meta_table.php.stub' => $this->getMigrationFileName('create_translatable_revision_meta_table.php'),
-        ], 'migrations');
-
-        $this->publishes([
             __DIR__.'/../database/migrations/create_translatable_revision_templates_table.php.stub' => $this->getMigrationFileName('create_translatable_revision_templates_table.php'),
-        ], 'migrations');
-
-        $this->publishes([
             __DIR__.'/../database/migrations/create_translatable_revision_template_fields_table.php.stub' => $this->getMigrationFileName('create_translatable_revision_template_fields_table.php'),
-        ], 'migrations');
-
-        $this->publishes([
             __DIR__.'/../database/migrations/create_translatable_revision_snapshots_table.php.stub' => $this->getMigrationFileName('create_translatable_revision_snapshots_table.php'),
-        ], 'migrations');
-
-        $this->publishes([
             __DIR__.'/../database/migrations/create_i18n_tables.php.stub' => $this->getMigrationFileName('create_i18n_tables.php'),
-        ], 'migrations');
-
-        $this->publishes([
             __DIR__.'/../database/migrations/add_revision_meta_indexes.php.stub' => $this->getMigrationFileName('add_revision_meta_indexes.php'),
-        ], 'migrations');
-
-        $this->publishes([
             __DIR__.'/../database/migrations/add_revision_template_field_indexes.php.stub' => $this->getMigrationFileName('add_revision_template_field_indexes.php'),
-        ], 'migrations');
-
-        $this->publishes([
             __DIR__.'/../database/migrations/add_i18n_definition_unique_term_locale.php.stub' => $this->getMigrationFileName('add_i18n_definition_unique_term_locale.php'),
-        ], 'migrations');
-
-        $this->publishes([
             __DIR__.'/../database/migrations/add_i18n_term_lookup_columns.php.stub' => $this->getMigrationFileName('add_i18n_term_lookup_columns.php'),
         ], 'migrations');
 
@@ -103,7 +78,9 @@ class TranslatableRevisionsServiceProvider extends ServiceProvider
      */
     protected function getMigrationFileName(string $migrationFileName): string
     {
-        $timestamp = date('Y_m_d_His');
+        $this->sequence--;
+
+        $timestamp = Carbon::now()->subSeconds($this->sequence)->format('Y_m_d_His');
 
         $filesystem = $this->app->make(Filesystem::class);
 
