@@ -1,10 +1,10 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Database\Factories;
+namespace Karabin\TranslatableRevisions\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Infab\TranslatableRevisions\Models\Page;
-use Infab\TranslatableRevisions\Models\RevisionTemplate;
+use Karabin\TranslatableRevisions\Models\Page;
+use Karabin\TranslatableRevisions\Models\RevisionTemplate;
 
 class PageFactory extends Factory
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Database\Factories;
+namespace Karabin\TranslatableRevisions\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use Infab\TranslatableRevisions\Models\RevisionMeta;
+use Karabin\TranslatableRevisions\Models\RevisionMeta;
 
 class RevisionMetaFactory extends Factory
 {

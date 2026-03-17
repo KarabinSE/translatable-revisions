@@ -1,6 +1,6 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Traits;
+namespace Karabin\TranslatableRevisions\Traits;
 
 use Exception;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,18 +10,18 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Infab\TranslatableRevisions\Events\DefinitionsPublished;
-use Infab\TranslatableRevisions\Events\DefinitionsUpdated;
-use Infab\TranslatableRevisions\Events\TranslatedRevisionDeleted;
-use Infab\TranslatableRevisions\Events\TranslatedRevisionUpdated;
-use Infab\TranslatableRevisions\Exceptions\FieldKeyNotFound;
-use Infab\TranslatableRevisions\Models\I18nDefinition;
-use Infab\TranslatableRevisions\Models\I18nLocale;
-use Infab\TranslatableRevisions\Models\I18nTerm;
-use Infab\TranslatableRevisions\Models\RevisionMeta;
-use Infab\TranslatableRevisions\Models\RevisionSnapshot;
-use Infab\TranslatableRevisions\Models\RevisionTemplate;
-use Infab\TranslatableRevisions\Models\RevisionTemplateField;
+use Karabin\TranslatableRevisions\Events\DefinitionsPublished;
+use Karabin\TranslatableRevisions\Events\DefinitionsUpdated;
+use Karabin\TranslatableRevisions\Events\TranslatedRevisionDeleted;
+use Karabin\TranslatableRevisions\Events\TranslatedRevisionUpdated;
+use Karabin\TranslatableRevisions\Exceptions\FieldKeyNotFound;
+use Karabin\TranslatableRevisions\Models\I18nDefinition;
+use Karabin\TranslatableRevisions\Models\I18nLocale;
+use Karabin\TranslatableRevisions\Models\I18nTerm;
+use Karabin\TranslatableRevisions\Models\RevisionMeta;
+use Karabin\TranslatableRevisions\Models\RevisionSnapshot;
+use Karabin\TranslatableRevisions\Models\RevisionTemplate;
+use Karabin\TranslatableRevisions\Models\RevisionTemplateField;
 
 trait HasTranslatedRevisions
 {
@@ -148,7 +148,7 @@ trait HasTranslatedRevisions
     /**
      * Gets the tempplate field via fieldKey
      *
-     * @return \Infab\TranslatableRevisions\Models\RevisionTemplateField
+     * @return \Karabin\TranslatableRevisions\Models\RevisionTemplateField
      *
      * @throws FieldKeyNotFound
      */

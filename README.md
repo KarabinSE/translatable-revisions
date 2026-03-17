@@ -1,4 +1,4 @@
-# infab/translatable-revisions
+# karabin/translatable-revisions
 
 [![tests](https://github.com/ikoncept/translatable-revisions/workflows/tests/badge.svg?branch=main)](https://github.com/ikoncept/translatable-revisions/actions?query=workflow%3Atests)
 [![PHPStan](https://github.com/ikoncept/translatable-revisions/workflows/PHPStan/badge.svg)](hhttps://github.com/ikoncept/translatable-revisions/actions?query=workflow%3APHPStan)
@@ -8,7 +8,7 @@ Translatable revisions for Laravel
 
 
 ```bash
-$ composer require infab/translatable-revisions
+$ composer require karabin/translatable-revisions
 ```
 
 ## Upgrading
@@ -16,7 +16,7 @@ $ composer require infab/translatable-revisions
 After upgrading, publish and run the package migrations:
 
 ```bash
-php artisan vendor:publish --provider="Infab\\TranslatableRevisions\\TranslatableRevisionsServiceProvider" --tag=migrations
+php artisan vendor:publish --provider="Karabin\\TranslatableRevisions\\TranslatableRevisionsServiceProvider" --tag=migrations
 php artisan migrate
 ```
 

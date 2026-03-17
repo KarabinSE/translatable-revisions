@@ -1,6 +1,6 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Tests;
+namespace Karabin\TranslatableRevisions\Tests;
 
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -51,7 +51,7 @@ abstract class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [
-            \Infab\TranslatableRevisions\TranslatableRevisionsServiceProvider::class,
+            \Karabin\TranslatableRevisions\TranslatableRevisionsServiceProvider::class,
         ];
     }
 }

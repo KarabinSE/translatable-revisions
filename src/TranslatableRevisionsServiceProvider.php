@@ -1,12 +1,12 @@
 <?php
 
-namespace Infab\TranslatableRevisions;
+namespace Karabin\TranslatableRevisions;
 
 use Carbon\Carbon;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
-use Infab\TranslatableRevisions\Console\Commands\BackfillRevisionSnapshots;
+use Karabin\TranslatableRevisions\Console\Commands\BackfillRevisionSnapshots;
 
 class TranslatableRevisionsServiceProvider extends ServiceProvider
 {

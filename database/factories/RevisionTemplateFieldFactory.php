@@ -1,9 +1,9 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Database\Factories;
+namespace Karabin\TranslatableRevisions\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Infab\TranslatableRevisions\Models\RevisionTemplateField;
+use Karabin\TranslatableRevisions\Models\RevisionTemplateField;
 
 class RevisionTemplateFieldFactory extends Factory
 {

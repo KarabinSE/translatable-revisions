@@ -1,12 +1,12 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Models;
+namespace Karabin\TranslatableRevisions\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Infab\TranslatableRevisions\Database\Factories\RevisionMetaFactory;
+use Karabin\TranslatableRevisions\Database\Factories\RevisionMetaFactory;
 
 class RevisionMeta extends Model
 {

@@ -1,5 +1,5 @@
 {
-    "name": "infab/translatable-revisions",
+    "name": "karabin/translatable-revisions",
     "description": "Translatable revisions for Laravel",
     "type": "library",
     "require": {
@@ -16,7 +16,7 @@
     "authors": [
         {
             "name": "Albin Nilsson",
-            "email": "albin@infab.io"
+            "email": "albin@karabin.se"
         },
         {
             "name": "Daniel Källstrand Modig",
@@ -25,13 +25,13 @@
     ],
     "autoload": {
         "psr-4": {
-            "Infab\\TranslatableRevisions\\": "src/",
-            "Infab\\TranslatableRevisions\\Database\\Factories\\": "database/factories"
+            "Karabin\\TranslatableRevisions\\": "src/",
+            "Karabin\\TranslatableRevisions\\Database\\Factories\\": "database/factories"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Infab\\TranslatableRevisions\\Tests\\": "tests"
+            "Karabin\\TranslatableRevisions\\Tests\\": "tests"
         }
     },
     "minimum-stability": "dev",
@@ -39,7 +39,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Infab\\TranslatableRevisions\\TranslatableRevisionsServiceProvider"
+                "Karabin\\TranslatableRevisions\\TranslatableRevisionsServiceProvider"
             ]
         }
     },

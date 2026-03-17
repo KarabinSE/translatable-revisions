@@ -1,6 +1,6 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Console\Commands;
+namespace Karabin\TranslatableRevisions\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;

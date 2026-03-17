@@ -1,11 +1,11 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Tests\Page;
+namespace Karabin\TranslatableRevisions\Tests\Page;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Infab\TranslatableRevisions\Models\RevisionTemplate;
-use Infab\TranslatableRevisions\Models\RevisionTemplateField;
-use Infab\TranslatableRevisions\Tests\TestCase;
+use Karabin\TranslatableRevisions\Models\RevisionTemplate;
+use Karabin\TranslatableRevisions\Models\RevisionTemplateField;
+use Karabin\TranslatableRevisions\Tests\TestCase;
 
 class RevisionTemplateTest extends TestCase
 {

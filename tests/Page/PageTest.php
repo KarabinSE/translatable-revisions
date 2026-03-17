@@ -1,22 +1,22 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Tests\Page;
+namespace Karabin\TranslatableRevisions\Tests\Page;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
-use Infab\TranslatableRevisions\Events\DefinitionsPublished;
-use Infab\TranslatableRevisions\Events\DefinitionsUpdated;
-use Infab\TranslatableRevisions\Events\TranslatedRevisionDeleted;
-use Infab\TranslatableRevisions\Events\TranslatedRevisionUpdated;
-use Infab\TranslatableRevisions\Models\I18nDefinition;
-use Infab\TranslatableRevisions\Models\I18nTerm;
-use Infab\TranslatableRevisions\Models\Page;
-use Infab\TranslatableRevisions\Models\RevisionMeta;
-use Infab\TranslatableRevisions\Models\RevisionTemplate;
-use Infab\TranslatableRevisions\Models\RevisionTemplateField;
-use Infab\TranslatableRevisions\Tests\TestCase;
+use Karabin\TranslatableRevisions\Events\DefinitionsPublished;
+use Karabin\TranslatableRevisions\Events\DefinitionsUpdated;
+use Karabin\TranslatableRevisions\Events\TranslatedRevisionDeleted;
+use Karabin\TranslatableRevisions\Events\TranslatedRevisionUpdated;
+use Karabin\TranslatableRevisions\Models\I18nDefinition;
+use Karabin\TranslatableRevisions\Models\I18nTerm;
+use Karabin\TranslatableRevisions\Models\Page;
+use Karabin\TranslatableRevisions\Models\RevisionMeta;
+use Karabin\TranslatableRevisions\Models\RevisionTemplate;
+use Karabin\TranslatableRevisions\Models\RevisionTemplateField;
+use Karabin\TranslatableRevisions\Tests\TestCase;
 
 class PageTest extends TestCase
 {
@@ -68,7 +68,7 @@ class PageTest extends TestCase
         $this->assertInstanceOf(RevisionMeta::class, $page->meta->first());
         $this->assertCount(2, $page->meta);
         $this->assertArrayHasKey('meta_key', $meta_data->first()->toArray());
-        $this->assertEquals('Infab\TranslatableRevisions\Models\Page', $meta_data->first()->model_type);
+        $this->assertEquals('Karabin\TranslatableRevisions\Models\Page', $meta_data->first()->model_type);
     }
 
     /** @test **/
@@ -643,7 +643,7 @@ class PageTest extends TestCase
         ]);
         $this->assertDatabaseMissing('revision_meta', [
             'model_id' => $page->id,
-            'model_type' => 'Infab\TranslatableRevisions\Models\Page',
+            'model_type' => 'Karabin\TranslatableRevisions\Models\Page',
         ]);
         Event::assertDispatched(TranslatedRevisionDeleted::class);
     }

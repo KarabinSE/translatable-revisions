@@ -1,6 +1,6 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Traits;
+namespace Karabin\TranslatableRevisions\Traits;
 
 class RevisionOptions
 {

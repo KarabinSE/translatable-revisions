@@ -1,6 +1,6 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Exceptions;
+namespace Karabin\TranslatableRevisions\Exceptions;
 
 use Exception;
 

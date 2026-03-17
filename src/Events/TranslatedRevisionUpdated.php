@@ -1,6 +1,6 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Events;
+namespace Karabin\TranslatableRevisions\Events;
 
 class TranslatedRevisionUpdated
 {

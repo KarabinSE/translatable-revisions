@@ -1,11 +1,11 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Models;
+namespace Karabin\TranslatableRevisions\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Infab\TranslatableRevisions\Database\Factories\RevisionTemplateFactory;
+use Karabin\TranslatableRevisions\Database\Factories\RevisionTemplateFactory;
 
 class RevisionTemplate extends Model
 {

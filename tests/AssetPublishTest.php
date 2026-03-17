@@ -1,6 +1,6 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Tests;
+namespace Karabin\TranslatableRevisions\Tests;
 
 class AssetPublishTest extends TestCase
 {
@@ -8,7 +8,7 @@ class AssetPublishTest extends TestCase
     public function it_can_publish_assets()
     {
         $this->artisan('vendor:publish', [
-            '--provider' => 'Infab\TranslatableRevisions\TranslatableRevisionsServiceProvider',
+            '--provider' => 'Karabin\TranslatableRevisions\TranslatableRevisionsServiceProvider',
         ])
         ->assertExitCode(0);
     }

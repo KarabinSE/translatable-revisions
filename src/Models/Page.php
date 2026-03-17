@@ -1,14 +1,14 @@
 <?php
 
-namespace Infab\TranslatableRevisions\Models;
+namespace Karabin\TranslatableRevisions\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Infab\TranslatableRevisions\Database\Factories\PageFactory;
-use Infab\TranslatableRevisions\Traits\HasTranslatedRevisions;
-use Infab\TranslatableRevisions\Traits\RevisionOptions;
+use Karabin\TranslatableRevisions\Database\Factories\PageFactory;
+use Karabin\TranslatableRevisions\Traits\HasTranslatedRevisions;
+use Karabin\TranslatableRevisions\Traits\RevisionOptions;
 
 class Page extends Model
 {
