@@ -60,6 +60,23 @@ class RevisionMeta extends Model
         $metaTable = $this->getTable();
         $templateFieldsTable = config('translatable-revisions.revision_template_fields_table_name');
 
+        if ($revision === 0 || $revision === '0') {
+            $hasVersionZero = (clone $query)
+                ->where($metaTable.'.model_version', 0)
+                ->exists();
+
+            return $query->leftJoin($templateFieldsTable, $metaTable.'.meta_key', '=', $templateFieldsTable.'.key')
+                ->select(
+                    $metaTable.'.*',
+                    $templateFieldsTable.'.type'
+                )
+                ->when(
+                    $hasVersionZero,
+                    fn (Builder $builder) => $builder->where($metaTable.'.model_version', 0),
+                    fn (Builder $builder) => $builder->whereNull($metaTable.'.model_version')
+                );
+        }
+
         return $query->leftJoin($templateFieldsTable, $metaTable.'.meta_key', '=', $templateFieldsTable.'.key')
             ->select(
                 $metaTable.'.*',

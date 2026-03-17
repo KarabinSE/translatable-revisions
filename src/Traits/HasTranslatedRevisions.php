@@ -90,11 +90,7 @@ trait HasTranslatedRevisions
      */
     public function setRevision($revision): int
     {
-        if ($revision !== null) {
-            $this->revisionNumber = $revision;
-        } else {
-            $this->revisionNumber = $this->revision;
-        }
+        $this->revisionNumber = $revision ?? $this->revision ?? 0;
 
         return (int) $this->revisionNumber;
     }
@@ -522,11 +518,15 @@ trait HasTranslatedRevisions
      */
     public function updateMetaItem($fieldKey, $data): RevisionMeta
     {
+        $modelVersion = (int) ($this->revisionNumber ?? $this->revision ?? 0);
+
         $updated = RevisionMeta::updateOrCreate(
-            ['meta_key' => $fieldKey,
+            [
+                'meta_key' => $fieldKey,
                 'model_id' => $this->id,
                 'model_type' => $this->morphClass ?? $this->getMorphClass(),
-                'model_version' => $this->revisionNumber, ],
+                'model_version' => $modelVersion,
+            ],
             [
                 'meta_value' => $this->fromArrayToIdArray($data),
             ]
@@ -543,6 +543,10 @@ trait HasTranslatedRevisions
         $updatedItems = [];
         foreach ($data as $key => $content) {
             $updatedItems[] = $this->updateMetaItem($key, $content);
+        }
+
+        if ($this->shouldUseSnapshotReadModel()) {
+            $this->forgetSnapshotsForRevision((int) $this->revisionNumber);
         }
 
         return $updatedItems;
