@@ -7,7 +7,7 @@ use Karabin\TranslatableRevisions\Models\RevisionTemplate;
 use Karabin\TranslatableRevisions\Models\RevisionTemplateField;
 use Karabin\TranslatableRevisions\Tests\TestCase;
 
-class RevisionTemplateTest extends TestCase
+class PageTemplateTest extends TestCase
 {
     use RefreshDatabase;
 
