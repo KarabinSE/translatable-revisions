@@ -111,6 +111,37 @@ class PageTest extends TestCase
     }
 
     /** @test **/
+    public function it_stores_structured_lookup_columns_for_translated_terms()
+    {
+        // Arrange
+        $template = RevisionTemplate::factory()->create();
+        $field = RevisionTemplateField::factory()->create([
+            'template_id' => $template->id,
+            'translated' => true,
+            'key' => 'subheader',
+            'name' => 'Subheader',
+        ]);
+        $page = Page::factory()->create([
+            'template_id' => $template->id,
+            'revision' => 4,
+        ]);
+
+        // Act
+        $page->updateContent([
+            'subheader' => 'Structured lookup content',
+        ], 'sv', 4);
+
+        // Assert
+        $this->assertDatabaseHas('i18n_terms', [
+            'key' => 'pages'.$page->getDelimiter().$page->id.$page->getDelimiter().$page->revision.$page->getDelimiter().$field->key,
+            'model_type' => $page->getMorphClass(),
+            'model_id' => $page->id,
+            'model_version' => 4,
+            'field_key' => 'subheader',
+        ]);
+    }
+
+    /** @test **/
     public function it_can_update_grouped_fields_for_a_page()
     {
         // Arrange
@@ -177,6 +208,47 @@ class PageTest extends TestCase
         //     'locale' => 'en',
         //     'content' => json_encode('http://flank.se'),
         // ]);
+    }
+
+    /** @test **/
+    public function it_uses_the_supplied_locale_for_non_translated_repeater_subfields()
+    {
+        // Arrange
+        $template = RevisionTemplate::factory()->create();
+        RevisionTemplateField::factory()->create([
+            'template_id' => $template->id,
+            'translated' => false,
+            'key' => 'boxes',
+            'name' => 'Boxes',
+            'repeater' => true,
+        ]);
+        $page = Page::factory()->create([
+            'template_id' => $template->id,
+            'revision' => 2,
+        ]);
+
+        // Act
+        $page->updateContent([
+            'boxes' => [
+                ['title' => 'Hej'],
+            ],
+        ], 'sv', 2);
+
+        $page->updateContent([
+            'boxes' => [
+                ['title' => 'Hello'],
+            ],
+        ], 'en', 2);
+
+        // Assert
+        $this->assertDatabaseHas('i18n_definitions', [
+            'locale' => 'sv',
+            'content' => json_encode('Hej'),
+        ]);
+        $this->assertDatabaseHas('i18n_definitions', [
+            'locale' => 'en',
+            'content' => json_encode('Hello'),
+        ]);
     }
 
     /** @test **/

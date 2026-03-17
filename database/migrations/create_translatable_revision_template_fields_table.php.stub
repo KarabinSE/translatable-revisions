@@ -27,6 +27,8 @@ class CreateTranslatableRevisionTemplateFieldsTable extends Migration
             $table->boolean('translated')->default(1);
             $table->json('options')->nullable();
             $table->integer('sort_index')->default(0);
+
+            $table->index(['template_id', 'key'], 'revision_template_fields_lookup_idx');
         });
     }
 

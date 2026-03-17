@@ -57,11 +57,14 @@ class RevisionMeta extends Model
      */
     public function scopeMetaFields(Builder $query, $revision): Builder
     {
-        return $query->leftJoin('revision_template_fields', 'revision_meta.meta_key', '=', 'revision_template_fields.key')
+        $metaTable = $this->getTable();
+        $templateFieldsTable = config('translatable-revisions.revision_template_fields_table_name');
+
+        return $query->leftJoin($templateFieldsTable, $metaTable.'.meta_key', '=', $templateFieldsTable.'.key')
             ->select(
-                'revision_meta.*',
-                'revision_template_fields.type'
+                $metaTable.'.*',
+                $templateFieldsTable.'.type'
             )
-            ->where('model_version', $revision);
+            ->where($metaTable.'.model_version', $revision);
     }
 }
