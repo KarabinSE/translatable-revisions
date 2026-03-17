@@ -466,6 +466,97 @@ class PageTest extends TestCase
     }
 
     /** @test **/
+    public function it_does_not_purge_other_locale_snapshots_when_saving_one_locale()
+    {
+        // Arrange
+        Config::set('translatable-revisions.use_snapshot_read_model', true);
+        $template = RevisionTemplate::factory()->create();
+        RevisionTemplateField::factory()->create([
+            'template_id' => $template->id,
+            'name' => 'Page title',
+            'translated' => true,
+            'key' => 'page_title',
+            'type' => 'text',
+        ]);
+        $page = Page::factory()->create([
+            'template_id' => $template->id,
+            'revision' => 2,
+        ]);
+
+        $page->updateContent([
+            'page_title' => 'Hej',
+        ], 'sv', 2);
+        $page->updateContent([
+            'page_title' => 'Hello',
+        ], 'en', 2);
+
+        // Warm both locale snapshots
+        $page->getFieldContent(2, 'sv');
+        $page->getFieldContent(2, 'en');
+
+        $snapshotTable = config('translatable-revisions.revision_snapshots_table_name');
+        $this->assertEquals(2, DB::table($snapshotTable)
+            ->where('model_type', $page->getMorphClass())
+            ->where('model_id', $page->id)
+            ->where('model_version', 2)
+            ->count());
+
+        // Act: only update Swedish locale
+        $page->updateContent([
+            'page_title' => 'Hej igen',
+        ], 'sv', 2);
+        $page->getFieldContent(2, 'sv');
+
+        // Assert: English snapshot still exists
+        $this->assertDatabaseHas($snapshotTable, [
+            'model_type' => $page->getMorphClass(),
+            'model_id' => $page->id,
+            'model_version' => 2,
+            'locale' => 'en',
+        ]);
+        $this->assertEquals(2, DB::table($snapshotTable)
+            ->where('model_type', $page->getMorphClass())
+            ->where('model_id', $page->id)
+            ->where('model_version', 2)
+            ->count());
+    }
+
+    /** @test **/
+    public function it_can_backfill_snapshots_with_the_console_command()
+    {
+        // Arrange
+        Config::set('translatable-revisions.use_snapshot_read_model', false);
+        $template = RevisionTemplate::factory()->create();
+        RevisionTemplateField::factory()->create([
+            'template_id' => $template->id,
+            'name' => 'Page title',
+            'translated' => true,
+            'key' => 'page_title',
+            'type' => 'text',
+        ]);
+        $page = Page::factory()->create([
+            'template_id' => $template->id,
+            'revision' => 1,
+        ]);
+        $page->updateContent([
+            'page_title' => 'Backfill me',
+        ], 'en', 1);
+
+        // Act
+        $this->artisan('translatable-revisions:snapshot-backfill', [
+            '--model' => [Page::class],
+        ])->assertExitCode(0);
+
+        // Assert
+        $this->assertDatabaseHas(config('translatable-revisions.revision_snapshots_table_name'), [
+            'model_type' => $page->getMorphClass(),
+            'model_id' => $page->id,
+            'model_version' => 1,
+            'locale' => 'en',
+        ]);
+    }
+
+    /** @test **/
     public function it_can_get_revision_meta_image()
     {
         // Arrange

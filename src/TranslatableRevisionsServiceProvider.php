@@ -5,6 +5,7 @@ namespace Infab\TranslatableRevisions;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
+use Infab\TranslatableRevisions\Console\Commands\BackfillRevisionSnapshots;
 
 class TranslatableRevisionsServiceProvider extends ServiceProvider
 {
@@ -87,6 +88,12 @@ class TranslatableRevisionsServiceProvider extends ServiceProvider
         // $this->publishes([
         //     __DIR__.'/../database/migrations/create_i18n_tables.php.stub' => database_path('migrations/'.$date.'_create_i18n_tables.php'),
         // ], 'migrations');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                BackfillRevisionSnapshots::class,
+            ]);
+        }
     }
 
     /**

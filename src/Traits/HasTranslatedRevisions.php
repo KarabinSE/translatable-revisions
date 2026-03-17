@@ -220,7 +220,7 @@ trait HasTranslatedRevisions
             }
         });
 
-        $this->forgetSnapshotsForRevision((int) $this->revisionNumber);
+        $this->forgetSnapshot($locale, (int) $this->revisionNumber);
 
         app()->events->dispatch(new DefinitionsUpdated($definitions, $this));
 
@@ -649,8 +649,6 @@ trait HasTranslatedRevisions
                     $this->purgeOldRevisions($suppliedRevision - 1);
                 }
 
-                $this->forgetAllSnapshots();
-
                 return [$locale->iso_code => $this->getFieldContent($suppliedRevision, $locale->iso_code)];
             });
 
@@ -753,6 +751,15 @@ trait HasTranslatedRevisions
         RevisionSnapshot::where('model_type', $this->morphClass ?? $this->getMorphClass())
             ->where('model_id', $this->id)
             ->where('model_version', $revision)
+            ->delete();
+    }
+
+    protected function forgetSnapshot(string $locale, int $revision): void
+    {
+        RevisionSnapshot::where('model_type', $this->morphClass ?? $this->getMorphClass())
+            ->where('model_id', $this->id)
+            ->where('model_version', $revision)
+            ->where('locale', $locale)
             ->delete();
     }
 
