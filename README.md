@@ -1,6 +1,6 @@
 # karabinse/translatable-revisions
 
-[![tests](https://github.com/karabinse/translatable-revisions/workflows/tests/badge.svg?branch=main)](https://github.com/karabinse/translatable-revisions/actions?query=workflow%3Atests)
+[![tests](https://github.com/KarabinSE/translatable-revisions/actions/workflows/tests.yml/badge.svg)](https://github.com/KarabinSE/translatable-revisions/actions/workflows/tests.yml)
 
 
 Translatable revisions for Laravel
