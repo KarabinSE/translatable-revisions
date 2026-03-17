@@ -19,6 +19,7 @@ use Infab\TranslatableRevisions\Models\I18nDefinition;
 use Infab\TranslatableRevisions\Models\I18nLocale;
 use Infab\TranslatableRevisions\Models\I18nTerm;
 use Infab\TranslatableRevisions\Models\RevisionMeta;
+use Infab\TranslatableRevisions\Models\RevisionSnapshot;
 use Infab\TranslatableRevisions\Models\RevisionTemplate;
 use Infab\TranslatableRevisions\Models\RevisionTemplateField;
 
@@ -111,6 +112,7 @@ trait HasTranslatedRevisions
 
             // Clear terms/defs
             (new I18nTerm)->clearTermsWithKey($termKey);
+            $model->forgetAllSnapshots();
             app()->events->dispatch(new TranslatedRevisionDeleted($model));
         });
 
@@ -217,6 +219,8 @@ trait HasTranslatedRevisions
                 return ['definition' => $definition, 'term' => $term];
             }
         });
+
+        $this->forgetSnapshotsForRevision((int) $this->revisionNumber);
 
         app()->events->dispatch(new DefinitionsUpdated($definitions, $this));
 
@@ -363,40 +367,20 @@ trait HasTranslatedRevisions
         $locale = $this->setLocale($locale);
         $this->setRevision($revision);
 
-        // Escape wild card chars
-        $termWithoutKey = $this->getTermWithoutKey();
-
-        $translatedFields = I18nTerm::translatedFields(
-            $termWithoutKey,
-            $locale,
-            $this->morphClass ?? $this->getMorphClass(),
-            (int) $this->id,
-            (int) $this->revisionNumber
-        )->get();
-
-        if ($translatedFields->isEmpty()) {
-            $translatedFields = I18nTerm::translatedFields($termWithoutKey, $locale)->get();
+        if ($this->shouldUseSnapshotReadModel()) {
+            $snapshot = $this->getSnapshotContent($locale, (int) $this->revisionNumber);
+            if ($snapshot) {
+                return $snapshot;
+            }
         }
 
-        $metaFields = RevisionMeta::modelMeta($this)
-            ->metaFields($revision)
-            ->get();
+        $grouped = $this->buildRawFieldContent($locale, (int) $this->revisionNumber);
 
-        $metaData = $metaFields->mapWithKeys(function ($metaItem) {
-            return [$metaItem->meta_key => $this->getMeta($metaItem)];
-        });
+        if ($this->shouldUseSnapshotReadModel()) {
+            $this->saveSnapshotContent($locale, (int) $this->revisionNumber, $grouped->toArray());
+        }
 
-        $grouped = collect($translatedFields)->mapWithKeys(function ($item, $key) {
-            if ($item->repeater) {
-                $content = json_decode($item->content, true);
-
-                return [$item->template_key => $content];
-            }
-
-            return [$item->template_key => json_decode($item->content)];
-        });
-
-        return $grouped->merge($metaData);
+        return $grouped;
     }
 
     /**
@@ -411,53 +395,48 @@ trait HasTranslatedRevisions
         $this->setRevision($revision);
         $revisionOptions = $this->getResolvedRevisionOptions();
 
-        // Escape wild card chars
-        $termWithoutKey = $this->getTermWithoutKey();
-
-        $translatedFields = I18nTerm::translatedFields(
-            $termWithoutKey,
-            $locale,
-            $this->morphClass ?? $this->getMorphClass(),
-            (int) $this->id,
-            (int) $this->revisionNumber
-        )->get();
-
-        if ($translatedFields->isEmpty()) {
-            $translatedFields = I18nTerm::translatedFields($termWithoutKey, $locale)->get();
+        if ($this->shouldUseSnapshotReadModel()) {
+            $grouped = $this->getSnapshotContent($locale, (int) $this->revisionNumber);
+        } else {
+            $grouped = null;
         }
 
-        $metaFields = RevisionMeta::modelMeta($this)
-            ->metaFields($revision)
-            ->get();
+        if (! $grouped) {
+            $grouped = $this->buildRawFieldContent($locale, (int) $this->revisionNumber);
 
-        $metaData = $metaFields->mapWithKeys(function ($metaItem) {
-            return [$metaItem->meta_key => $this->getMeta($metaItem)];
-        });
+            if ($this->shouldUseSnapshotReadModel()) {
+                $this->saveSnapshotContent($locale, (int) $this->revisionNumber, $grouped->toArray());
+            }
+        }
 
-        $grouped = collect($translatedFields)->mapWithKeys(function ($item, $key) use ($revisionOptions) {
-            if ($item->repeater) {
-                $content = json_decode($item->content, true);
-
-                return [$item->template_key => $this->getRepeater($content)];
+        return $grouped->mapWithKeys(function ($value, $fieldKey) use ($revisionOptions) {
+            try {
+                $templateField = $this->getTemplateField($fieldKey);
+            } catch (FieldKeyNotFound $e) {
+                return [$fieldKey => $value];
             }
 
-            if (in_array($item->type, $revisionOptions->specialTypes)) {
-                if (array_key_exists($item->type, $revisionOptions->getters)) {
-                    return [
-                        $item->template_key => $this->handleCallable(
-                            [$this,  $revisionOptions->getters[$item->type]],
-                            RevisionMeta::make([
-                                'meta_value' => json_decode($item->content),
-                            ])
-                        ),
-                    ];
-                }
+            if (! $templateField->translated) {
+                return [$fieldKey => $value];
             }
 
-            return [$item->template_key => json_decode($item->content)];
-        });
+            if ($templateField->repeater) {
+                return [$fieldKey => $this->getRepeater($value)];
+            }
 
-        return $grouped->merge($metaData);
+            if (in_array($templateField->type, $revisionOptions->specialTypes) && array_key_exists($templateField->type, $revisionOptions->getters)) {
+                return [
+                    $fieldKey => $this->handleCallable(
+                        [$this, $revisionOptions->getters[$templateField->type]],
+                        RevisionMeta::make([
+                            'meta_value' => $value,
+                        ])
+                    ),
+                ];
+            }
+
+            return [$fieldKey => $value];
+        });
     }
 
     /**
@@ -480,6 +459,11 @@ trait HasTranslatedRevisions
             ->where('model_version', '<=', $revision)
             ->where('model_type', $this->morphClass ?? $this->getMorphClass())
             ->where('model_id', $this->id)
+            ->delete();
+
+        RevisionSnapshot::where('model_type', $this->morphClass ?? $this->getMorphClass())
+            ->where('model_id', $this->id)
+            ->where('model_version', '<=', $revision)
             ->delete();
     }
 
@@ -665,6 +649,8 @@ trait HasTranslatedRevisions
                     $this->purgeOldRevisions($suppliedRevision - 1);
                 }
 
+                $this->forgetAllSnapshots();
+
                 return [$locale->iso_code => $this->getFieldContent($suppliedRevision, $locale->iso_code)];
             });
 
@@ -725,5 +711,90 @@ trait HasTranslatedRevisions
     protected function getI18nDefinitionsTable(): string
     {
         return $this->getI18nTableName('i18n_definitions');
+    }
+
+    protected function shouldUseSnapshotReadModel(): bool
+    {
+        return (bool) config('translatable-revisions.use_snapshot_read_model', false);
+    }
+
+    protected function getSnapshotContent(string $locale, int $revision): ?Collection
+    {
+        $snapshot = RevisionSnapshot::where('model_type', $this->morphClass ?? $this->getMorphClass())
+            ->where('model_id', $this->id)
+            ->where('model_version', $revision)
+            ->where('locale', $locale)
+            ->first();
+
+        if (! $snapshot) {
+            return null;
+        }
+
+        return collect($snapshot->content ?? []);
+    }
+
+    protected function saveSnapshotContent(string $locale, int $revision, array $content): void
+    {
+        RevisionSnapshot::updateOrCreate(
+            [
+                'model_type' => $this->morphClass ?? $this->getMorphClass(),
+                'model_id' => $this->id,
+                'model_version' => $revision,
+                'locale' => $locale,
+            ],
+            [
+                'content' => $content,
+            ]
+        );
+    }
+
+    protected function forgetSnapshotsForRevision(int $revision): void
+    {
+        RevisionSnapshot::where('model_type', $this->morphClass ?? $this->getMorphClass())
+            ->where('model_id', $this->id)
+            ->where('model_version', $revision)
+            ->delete();
+    }
+
+    protected function forgetAllSnapshots(): void
+    {
+        RevisionSnapshot::where('model_type', $this->morphClass ?? $this->getMorphClass())
+            ->where('model_id', $this->id)
+            ->delete();
+    }
+
+    protected function buildRawFieldContent(string $locale, int $revision): Collection
+    {
+        $termWithoutKey = $this->getTermWithoutKey($revision);
+
+        $translatedFields = I18nTerm::translatedFields(
+            $termWithoutKey,
+            $locale,
+            $this->morphClass ?? $this->getMorphClass(),
+            (int) $this->id,
+            $revision
+        )->get();
+
+        if ($translatedFields->isEmpty()) {
+            $translatedFields = I18nTerm::translatedFields($termWithoutKey, $locale)->get();
+        }
+
+        $metaFields = RevisionMeta::modelMeta($this)
+            ->metaFields($revision)
+            ->get();
+
+        $metaData = $metaFields->mapWithKeys(function ($metaItem) {
+            return [$metaItem->meta_key => $this->getMeta($metaItem)];
+        });
+
+        $translatedData = collect($translatedFields)->mapWithKeys(function ($item) {
+            if ($item->repeater) {
+                return [$item->template_key => json_decode($item->content, true)];
+            }
+
+            return [$item->template_key => json_decode($item->content)];
+        });
+
+        return $translatedData->merge($metaData);
     }
 }

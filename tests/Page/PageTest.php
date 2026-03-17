@@ -381,6 +381,91 @@ class PageTest extends TestCase
     }
 
     /** @test **/
+    public function it_can_use_snapshot_read_model_when_enabled()
+    {
+        // Arrange
+        Config::set('translatable-revisions.use_snapshot_read_model', true);
+        $template = RevisionTemplate::factory()->create();
+        RevisionTemplateField::factory()->create([
+            'template_id' => $template->id,
+            'name' => 'Page title',
+            'translated' => true,
+            'key' => 'page_title',
+            'type' => 'text',
+        ]);
+        RevisionTemplateField::factory()->create([
+            'template_id' => $template->id,
+            'translated' => true,
+            'key' => 'boxes',
+            'name' => 'Boxes',
+            'repeater' => true,
+            'type' => 'repeater',
+        ]);
+        $page = Page::factory()->create([
+            'template_id' => $template->id,
+            'revision' => 1,
+        ]);
+
+        $page->updateContent([
+            'page_title' => 'Snapshot title',
+            'boxes' => [
+                ['title' => 'Box A'],
+            ],
+        ], 'en', 1);
+
+        // Act
+        $content = $page->getFieldContent(1, 'en');
+
+        // Assert
+        $this->assertEquals('Snapshot title', $content['page_title']);
+        $this->assertDatabaseHas(config('translatable-revisions.revision_snapshots_table_name'), [
+            'model_type' => $page->getMorphClass(),
+            'model_id' => $page->id,
+            'model_version' => 1,
+            'locale' => 'en',
+        ]);
+    }
+
+    /** @test **/
+    public function it_refreshes_snapshot_after_content_update()
+    {
+        // Arrange
+        Config::set('translatable-revisions.use_snapshot_read_model', true);
+        $template = RevisionTemplate::factory()->create();
+        RevisionTemplateField::factory()->create([
+            'template_id' => $template->id,
+            'name' => 'Page title',
+            'translated' => true,
+            'key' => 'page_title',
+            'type' => 'text',
+        ]);
+        $page = Page::factory()->create([
+            'template_id' => $template->id,
+            'revision' => 1,
+        ]);
+
+        $page->updateContent([
+            'page_title' => 'Before update',
+        ], 'en', 1);
+        $page->getFieldContent(1, 'en');
+
+        // Act
+        $page->updateContent([
+            'page_title' => 'After update',
+        ], 'en', 1);
+        $updated = $page->getFieldContent(1, 'en');
+
+        // Assert
+        $this->assertEquals('After update', $updated['page_title']);
+        $this->assertDatabaseHas(config('translatable-revisions.revision_snapshots_table_name'), [
+            'model_type' => $page->getMorphClass(),
+            'model_id' => $page->id,
+            'model_version' => 1,
+            'locale' => 'en',
+        ]);
+    }
+
+    /** @test **/
     public function it_can_get_revision_meta_image()
     {
         // Arrange
