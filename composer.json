@@ -1,5 +1,5 @@
 {
-    "name": "karabin/translatable-revisions",
+    "name": "karabinse/translatable-revisions",
     "description": "Translatable revisions for Laravel",
     "type": "library",
     "require": {
